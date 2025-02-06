@@ -46,6 +46,7 @@ function CustomMap({ children }: CustomMapProps) {
     >
       {children}
       <UrlTile urlTemplate={mapbox_key} />
+
       {selectedCoordinates && (
         <Marker
           title={selectedCoordinates.name}

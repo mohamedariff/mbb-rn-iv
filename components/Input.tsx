@@ -59,6 +59,7 @@ function CustomInput() {
         allowClear
         type="text"
         autoComplete="off"
+        autoCorrect={false}
         style={styles.input}
         onChangeText={onChangeText}
         inputStyle={styles.innerInput}
