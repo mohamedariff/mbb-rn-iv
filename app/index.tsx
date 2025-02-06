@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, View } from 'react-native'
+import { KeyboardAvoidingView } from 'react-native'
 
 import CustomMap from '@/components/Map'
 import CustomInput from '@/components/Input'
