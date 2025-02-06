@@ -16,6 +16,7 @@ interface PlacesState {
   selectedCoordinates: Coordinates & { name?: string }
   loading: boolean
   error: string | null
+  searchHistory: Place[]
 }
 
 const initialState: PlacesState = {
@@ -25,7 +26,8 @@ const initialState: PlacesState = {
     lng: 101.05972492375584
   },
   loading: false,
-  error: null
+  error: null,
+  searchHistory: []
 }
 
 export const fetchPlacePredictions = createAsyncThunk(
@@ -50,6 +52,20 @@ const placesSlice = createSlice({
   reducers: {
     clearPlaces: (state) => {
       state.places = []
+    },
+    addToHistory: (state, action) => {
+      const exists = state.searchHistory.some(
+        (place) => place.value === action.payload.value
+      )
+      if (!exists) {
+        state.searchHistory = [
+          action.payload,
+          ...state.searchHistory.slice(0, 9)
+        ]
+      }
+    },
+    clearHistory: (state) => {
+      state.searchHistory = []
     }
   },
   extraReducers: (builder) => {
@@ -72,5 +88,5 @@ const placesSlice = createSlice({
   }
 })
 
-export const { clearPlaces } = placesSlice.actions
+export const { clearPlaces, addToHistory, clearHistory } = placesSlice.actions
 export default placesSlice.reducer

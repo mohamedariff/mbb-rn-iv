@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   FlatList,
   StyleSheet,
@@ -6,55 +6,85 @@ import {
   TouchableOpacity,
   View
 } from 'react-native'
+import { debounce } from 'lodash'
 import { Input } from '@ant-design/react-native'
 import { useAppDispatch, useAppSelector } from '@/redux/hooks'
-import { debounce } from 'lodash'
-import { fetchCoordinates, fetchPlacePredictions } from '@/redux/placesSlice'
+import {
+  addToHistory,
+  clearHistory,
+  fetchCoordinates,
+  fetchPlacePredictions
+} from '@/redux/placesSlice'
 
 type ItemProps = { label: string; value: string }
 
 function CustomInput() {
   const dispatch = useAppDispatch()
+  const [inputValue, setInputValue] = useState('')
 
   const data = useAppSelector((state) => state.places.places)
+  const searchHistory = useAppSelector((state) => state.places.searchHistory)
 
-  const onSelectPlace = (value: string) => {
-    if (value) {
-      dispatch(fetchCoordinates(value))
+  const onSelectPlace = (place: ItemProps) => {
+    if (place.value) {
+      dispatch(fetchCoordinates(place.value))
+      dispatch(addToHistory(place))
+      setInputValue(place.label)
     }
   }
 
   const Item = ({ label, value }: ItemProps) => (
-    <TouchableOpacity onPress={() => onSelectPlace(value)}>
+    <TouchableOpacity onPress={() => onSelectPlace({ label, value })}>
       <Text>{label}</Text>
     </TouchableOpacity>
   )
 
-  const onChange = debounce((search) => {
-    if (search) {
-      dispatch(fetchPlacePredictions(search))
-    }
+  const debouncedFetch = debounce((search) => {
+    if (search.length === 0) return
+    dispatch(fetchPlacePredictions(search))
   }, 500)
+
+  const onChangeText = (search: string) => {
+    setInputValue(search)
+    debouncedFetch(search)
+  }
+
+  const onClearSearchHistory = () => dispatch(clearHistory())
 
   return (
     <View style={{ gap: 10 }}>
       <Input
-        onChangeText={onChange}
+        value={inputValue}
         allowClear
         type="text"
         autoComplete="off"
         style={styles.input}
+        onChangeText={onChangeText}
         inputStyle={styles.innerInput}
         placeholder="Search a place.."
       />
-      <FlatList
-        data={data}
-        style={styles.list}
-        keyExtractor={(item) => item.value}
-        renderItem={({ item }) => (
-          <Item label={item.label} value={item.value} />
-        )}
-      />
+
+      {(inputValue.length > 0 || searchHistory.length > 0) && (
+        <FlatList
+          contentContainerStyle={{ gap: 5, paddingHorizontal: 5 }}
+          data={inputValue ? data : searchHistory}
+          style={styles.list}
+          keyExtractor={(item) => item.value}
+          renderItem={({ item }) => (
+            <Item label={item.label} value={item.value} />
+          )}
+          ListHeaderComponent={
+            !inputValue && searchHistory.length > 0 ? (
+              <View style={styles.historyHeader}>
+                <Text style={styles.recentSearchesText}>Recent Searches</Text>
+                <TouchableOpacity onPress={onClearSearchHistory}>
+                  <Text style={styles.clearText}>Clear</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null
+          }
+        />
+      )}
     </View>
   )
 }
@@ -80,7 +110,16 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 5,
     backgroundColor: 'white'
-  }
+  },
+  historyHeader: {
+    paddingBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  clearText: {
+    color: 'red'
+  },
+  recentSearchesText: { color: 'gray' }
 })
 
 export default CustomInput
