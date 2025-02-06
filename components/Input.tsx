@@ -15,6 +15,7 @@ import {
   fetchCoordinates,
   fetchPlacePredictions
 } from '@/redux/placesSlice'
+import { withApiKeyCheck } from '@/hoc/withApiKeyCheck'
 
 type ItemProps = { label: string; value: string }
 
@@ -122,4 +123,4 @@ const styles = StyleSheet.create({
   recentSearchesText: { color: 'gray' }
 })
 
-export default CustomInput
+export default withApiKeyCheck(CustomInput)

@@ -8,6 +8,7 @@ import { Stack } from 'expo-router'
 import store from '../redux/store'
 
 export default function RootLayout() {
+  // load antd icons
   useFonts({
     antoutline: require('@ant-design/icons-react-native/fonts/antoutline.ttf')
   })

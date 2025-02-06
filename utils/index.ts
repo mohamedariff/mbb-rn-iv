@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Toast } from '@ant-design/react-native'
+// import { Toast } from '@ant-design/react-native'
 
 const key = process.env.EXPO_PUBLIC_PLACES_KEY
 
@@ -9,9 +9,9 @@ export const fetchGooglePlace = async (input: string) => {
 
   try {
     const response = await axios.get(endpoint, { params: { input, key } })
-    if (response.data.status !== 'OK') {
-      return Toast.fail(response.data.error_message)
-    }
+    // if (response.data.status !== 'OK') {
+    //   return Toast.fail(response.data.error_message)
+    // }
     return response.data.predictions
   } catch (error) {
     console.error('Error fetching autocomplete data:', error)
