@@ -7,34 +7,39 @@ import {
   View
 } from 'react-native'
 import { Input } from '@ant-design/react-native'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { debounce } from 'lodash'
+import { fetchCoordinates, fetchPlacePredictions } from '@/redux/placesSlice'
 
-type ItemProps = { title: string }
-
-const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'First Item'
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Second Item'
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Third Item'
-  }
-]
+type ItemProps = { label: string; value: string }
 
 function CustomInput() {
-  const Item = ({ title }: ItemProps) => (
-    <TouchableOpacity>
-      <Text>{title}</Text>
+  const dispatch = useAppDispatch()
+
+  const data = useAppSelector((state) => state.places.places)
+
+  const onSelectPlace = (value: string) => {
+    if (value) {
+      dispatch(fetchCoordinates(value))
+    }
+  }
+
+  const Item = ({ label, value }: ItemProps) => (
+    <TouchableOpacity onPress={() => onSelectPlace(value)}>
+      <Text>{label}</Text>
     </TouchableOpacity>
   )
+
+  const onChange = debounce((search) => {
+    if (search) {
+      dispatch(fetchPlacePredictions(search))
+    }
+  }, 500)
 
   return (
     <View style={{ gap: 10 }}>
       <Input
+        onChangeText={onChange}
         allowClear
         type="text"
         autoComplete="off"
@@ -43,10 +48,12 @@ function CustomInput() {
         placeholder="Search a place.."
       />
       <FlatList
+        data={data}
         style={styles.list}
-        data={DATA}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Item title={item.title} />}
+        keyExtractor={(item) => item.value}
+        renderItem={({ item }) => (
+          <Item label={item.label} value={item.value} />
+        )}
       />
     </View>
   )
