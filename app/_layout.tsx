@@ -1,5 +1,10 @@
-import { Stack } from "expo-router";
+import { Provider } from '@ant-design/react-native'
+import { Stack } from 'expo-router'
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <Provider>
+      <Stack />
+    </Provider>
+  )
 }
