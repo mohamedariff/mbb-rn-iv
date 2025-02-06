@@ -13,7 +13,7 @@ type Coordinates = {
 
 interface PlacesState {
   places: Place[]
-  selectedCoordinates: Coordinates & { name?: string }
+  selectedCoordinates: (Coordinates & { name?: string }) | null
   loading: boolean
   error: string | null
   searchHistory: Place[]
@@ -21,10 +21,7 @@ interface PlacesState {
 
 const initialState: PlacesState = {
   places: [],
-  selectedCoordinates: {
-    lat: 4.637235377222436,
-    lng: 101.05972492375584
-  },
+  selectedCoordinates: null,
   loading: false,
   error: null,
   searchHistory: []
